@@ -16,4 +16,4 @@ Client Side :
 Cara Menjalankan :
 * Masuk ke Folder Belajar-SpringAndroid-API dan jalankan `npm install`
 * untuk menjalankan servernya : `node server.js`
-* lalu jalankan deploy aplikasi Belajar-SpringAndroid-Client ke emulator
+* lalu deploy aplikasi Belajar-SpringAndroid-Client ke emulator
