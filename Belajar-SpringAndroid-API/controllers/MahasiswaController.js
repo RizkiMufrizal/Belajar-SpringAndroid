@@ -15,12 +15,17 @@ module.exports = function (app) {
     };
 
     findByIdMahasiswa = function (req, res) {
-        return Mahasiswa.find({npm: req.params.npm}, function (err, mahasiswa) {
+        return Mahasiswa.findOne({npm: req.params.npm}, function (err, mahasiswa) {
             if (!mahasiswa) return res.send('404 Not Found');
 
             if (err) return res.send(err);
 
-            return res.send(mahasiswa);
+            var mhs = {};
+            mhs.npm = mahasiswa.npm;
+            mhs.nama = mahasiswa.nama;
+            mhs.kelas = mahasiswa.kelas; 
+
+            return res.send(mhs);
         });
     };
 
