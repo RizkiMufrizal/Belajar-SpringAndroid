@@ -35,6 +35,57 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     protected EditText nama;
     protected EditText kelas;
 
+    public static String POST(String url, Mahasiswa mahasiswa) {
+        InputStream inputStream;
+        String result = "";
+        try {
+
+            HttpClient httpclient = new DefaultHttpClient();
+
+            HttpPost httpPost = new HttpPost(url);
+
+            String json;
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("npm", mahasiswa.getNpm());
+            jsonObject.accumulate("nama", mahasiswa.getNama());
+            jsonObject.accumulate("kelas", mahasiswa.getKelas());
+
+            json = jsonObject.toString();
+
+            StringEntity se = new StringEntity(json);
+
+            httpPost.setEntity(se);
+
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+
+            HttpResponse httpResponse = httpclient.execute(httpPost);
+
+            inputStream = httpResponse.getEntity().getContent();
+
+            if (inputStream != null)
+                result = convertInputStreamToString(inputStream);
+            else
+                result = "Did not work!";
+
+        } catch (Exception e) {
+            Log.d("InputStream", e.getLocalizedMessage());
+        }
+        return result;
+    }
+
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        String result = "";
+        while ((line = bufferedReader.readLine()) != null)
+            result += line;
+
+        inputStream.close();
+        return result;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,88 +121,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
+    //Batas GET
+
     @Override
     protected void onStart() {
         super.onStart();
         new HttpRequestTask().execute();
     }
 
+    //Batas POST
+
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.button:
                 final String url = "http://10.0.2.2:8080/mahasiswa";
                 new HttpAsyncTask().execute(url);
         }
-    }
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-
-            Mahasiswa mahasiswa = new Mahasiswa();
-            mahasiswa.setNpm(npm.getText().toString());
-            mahasiswa.setNama(nama.getText().toString());
-            mahasiswa.setKelas(kelas.getText().toString());
-
-            return POST(urls[0],mahasiswa);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public static String POST(String url, Mahasiswa mahasiswa){
-        InputStream inputStream;
-        String result = "";
-        try {
-
-            HttpClient httpclient = new DefaultHttpClient();
-
-            HttpPost httpPost = new HttpPost(url);
-
-            String json;
-
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.accumulate("npm", mahasiswa.getNpm());
-            jsonObject.accumulate("nama", mahasiswa.getNama());
-            jsonObject.accumulate("kelas", mahasiswa.getKelas());
-
-            json = jsonObject.toString();
-
-            StringEntity se = new StringEntity(json);
-
-            httpPost.setEntity(se);
-
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-
-            HttpResponse httpResponse = httpclient.execute(httpPost);
-
-            inputStream = httpResponse.getEntity().getContent();
-
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
-
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-        return result;
-    }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException{
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-
-        inputStream.close();
-        return result;
     }
 
     private class HttpRequestTask extends AsyncTask<Void, Void, Mahasiswa> {
@@ -178,6 +164,24 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             npm.setText(mahasiswa.getNpm());
             nama.setText(mahasiswa.getNama());
             kelas.setText(mahasiswa.getKelas());
+        }
+    }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+
+            Mahasiswa mahasiswa = new Mahasiswa();
+            mahasiswa.setNpm(npm.getText().toString());
+            mahasiswa.setNama(nama.getText().toString());
+            mahasiswa.setKelas(kelas.getText().toString());
+
+            return POST(urls[0], mahasiswa);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
         }
     }
 }
